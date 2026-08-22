@@ -1,0 +1,4 @@
+storage/
+config/*
+!config/config.yml
+.env

@@ -1,0 +1,29 @@
+services:
+  frigate:
+    container_name: frigate
+    privileged: true # Simplifies hardware access (GPU/VA-API/TPU)
+    restart: unless-stopped
+    stop_grace_period: 30s
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: "256mb" # Adjust based on camera count and resolution (e.g. 512mb for 4+ cams)
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128 # Intel/AMD iGPU hardware acceleration
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/config
+      - ./storage:/media/frigate
+      - type: tmpfs # 1GB In-memory filesystem for recording segment storage
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000 # 1GB
+    ports:
+      - "8971:8971" # Frigate Web UI (authenticated)
+      - "5000:5000" # Unauthenticated local UI / API
+      - "8554:8554" # RTSP restream feeds (go2rtc)
+      - "8555:8555/tcp" # WebRTC live viewing
+      - "8555:8555/udp" # WebRTC live viewing
+    environment:
+      FRIGATE_NVR_IP: '192.168.0.12'
+      FRIGATE_NVR_PASSWORD: ${FRIGATE_NVR_PASSWORD}
+      FRIGATE_AMCREST_PASSWORD: ${FRIGATE_AMCREST_PASSWORD}
+      FRIGATE_MQTT_PASSWORD: ${FRIGATE_MQTT_PASSWORD}
