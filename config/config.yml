@@ -27,6 +27,14 @@ objects:
 # go2rtc restreaming engine (handles stream multiplexing and WebRTC)
 go2rtc:
   streams:
+    doorbell_main:
+      - rtsp://admin:{FRIGATE_REOLINK_PASSWORD}@192.168.0.80:554/Preview_01_main#backchannel=reolink
+    doorbell_sub:  
+      - rtsp://admin:{FRIGATE_REOLINK_PASSWORD}@192.168.0.80:554/Preview_01_sub
+    family_main:
+      - rtsp://admin:{FRIGATE_AMCREST_PASSWORD}@192.168.0.120:554/cam/realmonitor?channel=1&subtype=0
+    family_sub:
+      - rtsp://admin:{FRIGATE_AMCREST_PASSWORD}@192.168.0.120:554/cam/realmonitor?channel=1&subtype=1
     garage_main:
       - rtsp://admin:{FRIGATE_NVR_PASSWORD}@{FRIGATE_NVR_IP}:554/Streaming/Channels/101
     garage_sub:
@@ -43,12 +51,45 @@ go2rtc:
       - rtsp://admin:{FRIGATE_NVR_PASSWORD}@{FRIGATE_NVR_IP}:554/Streaming/Channels/401
     fpl_sub:
       - rtsp://admin:{FRIGATE_NVR_PASSWORD}@{FRIGATE_NVR_IP}:554/Streaming/Channels/402
-    family_main:
-      - rtsp://admin:{FRIGATE_AMCREST_PASSWORD}@192.168.0.120:554/cam/realmonitor?channel=1&subtype=0
-    family_sub:
-      - rtsp://admin:{FRIGATE_AMCREST_PASSWORD}@192.168.0.120:554/cam/realmonitor?channel=1&subtype=1
 
 cameras:
+  doorbell:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/doorbell_main
+          roles:
+            - record
+            - audio
+        - path: rtsp://127.0.0.1:8554/doorbell_sub
+          roles:
+            - detect
+    detect:
+      enabled: true
+      # width: 720
+      # height: 960
+      fps: 5      
+    audio:
+      enabled: true
+      listen:
+        - yell
+        - scream
+        - speech
+
+  family:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/family_main
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/family_sub
+          roles:
+            - detect
+    detect:
+      enabled: true
+      # width: 704
+      # height: 480
+      fps: 5
+
   garage:
     ffmpeg:
       inputs:
@@ -60,8 +101,8 @@ cameras:
             - detect
     detect:
       enabled: true
-      width: 352
-      height: 240
+      # width: 352
+      # height: 240
       fps: 5
     record:
       enabled: false
@@ -79,8 +120,8 @@ cameras:
             - detect
     detect:
       enabled: true
-      width: 352
-      height: 240
+      # width: 352
+      # height: 240
       fps: 5
     record:
       enabled: false
@@ -98,8 +139,8 @@ cameras:
             - detect
     detect:
       enabled: true
-      width: 352
-      height: 240
+      # width: 352
+      # height: 240
       fps: 5
     record:
       enabled: false
@@ -117,27 +158,12 @@ cameras:
             - detect
     detect:
       enabled: true
-      width: 352
-      height: 240
+      # width: 352
+      # height: 240
       fps: 5
     record:
       enabled: false
     snapshots:
       enabled: true
-
-  family:
-      ffmpeg:
-        inputs:
-          - path: rtsp://127.0.0.1:8554/family_main
-            roles:
-              - record
-          - path: rtsp://127.0.0.1:8554/family_sub
-            roles:
-              - detect
-      detect:
-        enabled: true
-        width: 704
-        height: 480
-        fps: 5
 
 version: 0.17-0
